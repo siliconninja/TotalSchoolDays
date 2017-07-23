@@ -1,0 +1,448 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+
+<!-- UTF8 encoding - required for em dashes and other characters to work -->
+<meta charset="utf-8" />
+
+<title>Total School Days (SchoolYear-SchoolYear+1)</title>
+
+<!-- Google meta description/keyword tags -->
+<meta name="description" content="A webapp that lets you check the total number of school days counted and remaining in the year. It is an exciting way to find out when summer break starts for high school students!">
+<meta name="keywords" content="school, school days, countdown, summer, high school, break, snow day, school day count, total days, total school days, school webapp, last day of school, last day, school app, app, online school, online course, last day of school countdown, college, schedule, high school schedule, back to school, total count, google classroom, classroom, google drive, android, computer, iphone, apple, pc, app store">
+
+<!-- JQuery loaded locally -->
+<script src="js/jquery.min.js"></script>
+
+<!-- CSS website icon/favicon! Yay! -->
+<!-- https://www.w3.org/2005/10/howto-favicon -->
+<link rel="icon" type="image/png" href="images/TSD-favicon.ico">
+
+<!-- CSS bootstrap theme from Bootswatch: https://bootswatch.com/cyborg/ -->
+<link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+
+<!-- CSS odometer for scrolling/counting numbers (minimal theme, css file renamed) -->
+<link rel="stylesheet" type="text/css" href="css/minimal.css" />
+
+
+<style>
+@charset "UTF-8";
+
+/* Roboto condensed webfont (not needed because Bootstrap theme loads it already) */
+@import url(https://fonts.googleapis.com/css?family=Roboto+Condensed:400,700&subset=latin-ext);
+
+/* Paragraph/text styles */
+p {
+	font-family: "Roboto", "Montserrat", Helvetica, Arial, sans-serif;
+	font-size: 16pt;
+}
+
+/* Informational divs (total school days, error messages, etc.) */
+#title{
+	font-family: "Roboto Condensed", "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	/* Big font size for readability */
+	font-size: 36pt;
+	/* Bold font (700 weight) -- there we go! It works! :D */
+	font-weight: 700;
+}
+
+/* Just the "0" (# of school days, other styling/theme "minimal" done by the Odometer css/js) */
+#total_school_days {
+	font-family: "Roboto Condensed", "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	vertical-align: top;
+	
+	/* Fix positioning */
+	bottom: 0.12em;
+	
+	font-size: 56pt;
+	
+	/* Different color */
+	color: #00e676;
+	
+}
+/* Just the prepending text before # of school days (if needed, e.g. "Total: ", or "Day") in the title constitutes this/makes this up */
+#tsd_days_text {
+	font-family: "Roboto Condensed", "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	/* Big font size for readability */
+	font-size: 36pt;
+	
+	/* EDIT: Not needed now, subtitle is on a separate line! */
+		/* Float on left to allow subtitle to stay on same line */
+		/* Source: http://stackoverflow.com/a/18836046 */
+		/* float: left; */
+	
+}
+
+
+/* Total School Days subtitle ("out of 181", etc.) */
+#subtitle_tsd {
+	font-family: "Roboto Condensed", "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	
+	/* Big font size for readability */
+	font-size: 48pt;
+	
+	/* Italicized font (not the intended end result...) */
+	/* font-style: italic; */
+	
+	/* Different color (from .text-success) */
+	color: #00c853;
+	
+}
+
+/* Footer text for bottom of webpage */
+.small_footer {
+	font-family: "Roboto Condensed", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 14pt;
+}
+
+
+/* Other divs for counting down the number of days, hours, and periods */
+.tsd_moreinfo {
+	font-family: "Roboto", "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	/* Bigger font size than other text but still small to improve readability */
+	font-size: 24pt;
+	color: #eeeeee;
+}
+
+#countdown_days, #countdown_hours, #countdown_periods {
+
+	/* Different/more vibrant color */
+	color: #69f0ae;
+	
+	/* Fix positioning */
+	bottom: 0.1em;
+}
+
+
+/* Link color fix */
+a {
+	color: #aaaaaa;
+}
+
+/* Align TSD info box and its text (current day, days left, periods/hours left) to center */
+/* https://www.w3.org/Style/Examples/007/center.en.html */
+#tsd_info_box {
+	margin-left: auto;
+    margin-right: auto;
+	text-align: center;
+}
+
+/* Title of app/link (at top of website, "Total School Days") */
+#app_title a {
+	color: #ffffff;
+	text-decoration: none;
+}
+
+/* Progress bar */
+#tsd_progressbar {
+	/* Center the progress bar */
+	margin-left: auto;
+    margin-right: auto;
+	text-align: center;
+	
+	/* Make it smaller */
+	width: 200px;
+	height: 100px;
+}
+
+/* Progress bar text */
+.progressbar-text {
+	/* font-size: 36px !important; */
+}
+
+/* Body needs to be centered as well for consistency... */
+/* https://www.w3.org/Style/Examples/007/center.en.html */
+body {
+	margin-left: auto;
+    margin-right: auto;
+	text-align: center;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1 id="app_title"><a href="#">Total School Days</a></h1>
+
+<p class="lead">A webapp that lets you check the total number of school days counted and remaining in the year.</p>
+<!-- <p id="stick_around"><strong>Stick around until the last day for something awesome!</strong></p> -->
+
+<!-- Large box for total school day count -->
+<div class="row" id="tsd_info_box">
+	
+	<!-- Placeholder column for optimal alignment -->
+	
+	<div class="col-lg-4">
+	</div>
+	
+	<div class="col-lg-4">
+		<div class="jumbotron">
+			
+			<h1>
+			
+				<!-- In case prepending any text (putting any text) before the number is needed/required -->
+				<span id="tsd_days_text"></span>
+				
+				<div id="total_school_days" class="counter">0</div>
+				
+				<span id="subtitle_tsd">/ 180</span>
+				
+			</h1>
+			
+			
+			<div class="tsd_moreinfo">
+				<span class="counter" id="countdown_days">?</span> days left
+			</div>
+			
+			<div class="tsd_moreinfo">
+				<span class="counter" id="countdown_periods">?</span> periods left
+			</div>
+			
+			<div class="tsd_moreinfo">
+				<span class="counter" id="countdown_hours">?</span> hours left
+			</div>
+			
+			<br>
+			
+			<!-- Progress bar (uses progressbar.js library) -->
+			<div id="tsd_progressbar">
+			</div>
+		
+		</div>
+	</div>
+	
+</div>
+
+<br>
+
+<!-- Error message is displayed if data cannot be received from server (see JS below) -->
+<div id="error_message">
+</div>
+
+<p>School day count updated daily. Always informative, right when you need it.</p>
+
+<p>Check out <strong><a href="https://github.com/siliconninja/Redirector">Redirector</a></strong>, an awesome tool for creating custom thumbnails on Google Classroom!</p>
+
+<p>Created and developed by <strong><a href="https://github.com/siliconninja">siliconninja</a></strong></p>
+
+<br>
+
+<p class="small_footer"><a href="https://github.com/siliconninja/TotalSchoolDays/tree/master/wiki/API_Documentation.md">Developer API &amp; Documentation&nbsp;<span class="label label-default">New!</span></a></p>
+<p class="small_footer"><a href="https://github.com/siliconninja/TotalSchoolDays">View Website Source Code &amp; Database Scripts</a></p>
+<p class="small_footer">Scrolling numbers: <a href="https://github.com/HubSpot/odometer">Odometer library from HubSpot</a></p>
+<p class="small_footer">Progress bar: <a href="https://kimmobrunfeldt.github.io/progressbar.js/">Progressbar.js</a></p>
+<p class="small_footer">Bootstrap theme: <a href="https://bootswatch.com/cyborg/">Cyborg by Bootswatch</a></p>
+<p class="small_footer">License: <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">Creative Commons BY-NC-SA 4.0</a></p>
+
+<br>
+
+<!-- <a href="#"><img src="images/TSD-large-image.png" alt="Total School Days icon | [1 | 8 | 0]"></a> -->
+
+</body>
+
+<!-- JavaScript code/imports here (much better to do it at the bottom, that way it will actually update) -->
+
+<!-- JS odometer (import for scrolling number odometer) -->
+<script src="js/odometer.min.js" type="text/javascript"></script>
+
+<!-- Counter/odometer options JavaScript code -->
+<script type="text/javascript">
+
+// Initialize odometer later in code to make animation shorter and smoother for the counter/odometer/total number of school days
+// Code source: http://github.hubspot.com/odometer/ (see "manually initialize an odometer with the global Odometer" in the Advanced section)
+
+// Query all matching elements (total days, days left, hours left, periods left)
+var el = document.querySelector('.counter');
+var el_d = document.querySelector('#countdown_days');
+var el_h = document.querySelector('#countdown_hours');
+var el_p = document.querySelector('#countdown_periods');
+
+// Initialize instances of odometers
+
+od = new Odometer({
+  el: el,
+  value: 0,
+
+  // Any option (other than auto and selector) can be passed in here
+  format: '(,ddd)',
+  theme: 'minimal',
+  duration: 300
+});
+
+od_d = new Odometer({
+  el: el_d,
+  value: 0,
+
+  // Any option (other than auto and selector) can be passed in here
+  format: '(,ddd)',
+  theme: 'minimal',
+  duration: 300
+});
+
+od_h = new Odometer({
+  el: el_h,
+  value: 0,
+
+  // Any option (other than auto and selector) can be passed in here
+  format: '(,ddd)',
+  theme: 'minimal',
+  duration: 300
+});
+
+od_p = new Odometer({
+  el: el_p,
+  value: 0,
+
+  // Any option (other than auto and selector) can be passed in here
+  format: '(,ddd)',
+  theme: 'minimal',
+  duration: 300
+});
+
+</script>
+
+<!-- Require.js package loader (installed through website), dependency for Progressbar.JS code
+<script src="require.js">
+</script> -->
+
+<!-- INLINE JavaScript -->
+<!-- Code source: http://stackoverflow.com/questions/8951810/how-to-parse-json-data-with-jquery-javascript -->
+<script type="text/javascript">
+
+// Most efficient method (because no other installation methods, not even the recommended straightforward common.js, works (because of deprecation)): import progressbar.js itself into inline JS.
+// Great library btw :)
+
+// ProgressBar.js 1.0.1
+// https://kimmobrunfeldt.github.io/progressbar.js
+// License: MIT
+
+!function(a){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=a();else if("function"==typeof define&&define.amd)define([],a);else{var b;b="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:this,b.ProgressBar=a()}}(function(){var a;return function b(a,c,d){function e(g,h){if(!c[g]){if(!a[g]){var i="function"==typeof require&&require;if(!h&&i)return i(g,!0);if(f)return f(g,!0);var j=new Error("Cannot find module '"+g+"'");throw j.code="MODULE_NOT_FOUND",j}var k=c[g]={exports:{}};a[g][0].call(k.exports,function(b){var c=a[g][1][b];return e(c?c:b)},k,k.exports,b,a,c,d)}return c[g].exports}for(var f="function"==typeof require&&require,g=0;g<d.length;g++)e(d[g]);return e}({1:[function(b,c,d){(function(){var b=this||Function("return this")(),e=function(){"use strict";function e(){}function f(a,b){var c;for(c in a)Object.hasOwnProperty.call(a,c)&&b(c)}function g(a,b){return f(b,function(c){a[c]=b[c]}),a}function h(a,b){f(b,function(c){"undefined"==typeof a[c]&&(a[c]=b[c])})}function i(a,b,c,d,e,f,g){var h,i,k,l=f>a?0:(a-f)/e;for(h in b)b.hasOwnProperty(h)&&(i=g[h],k="function"==typeof i?i:o[i],b[h]=j(c[h],d[h],k,l));return b}function j(a,b,c,d){return a+(b-a)*c(d)}function k(a,b){var c=n.prototype.filter,d=a._filterArgs;f(c,function(e){"undefined"!=typeof c[e][b]&&c[e][b].apply(a,d)})}function l(a,b,c,d,e,f,g,h,j,l,m){v=b+c+d,w=Math.min(m||u(),v),x=w>=v,y=d-(v-w),a.isPlaying()&&(x?(j(g,a._attachment,y),a.stop(!0)):(a._scheduleId=l(a._timeoutHandler,s),k(a,"beforeTween"),b+c>w?i(1,e,f,g,1,1,h):i(w,e,f,g,d,b+c,h),k(a,"afterTween"),j(e,a._attachment,y)))}function m(a,b){var c={},d=typeof b;return"string"===d||"function"===d?f(a,function(a){c[a]=b}):f(a,function(a){c[a]||(c[a]=b[a]||q)}),c}function n(a,b){this._currentState=a||{},this._configured=!1,this._scheduleFunction=p,"undefined"!=typeof b&&this.setConfig(b)}var o,p,q="linear",r=500,s=1e3/60,t=Date.now?Date.now:function(){return+new Date},u="undefined"!=typeof SHIFTY_DEBUG_NOW?SHIFTY_DEBUG_NOW:t;p="undefined"!=typeof window?window.requestAnimationFrame||window.webkitRequestAnimationFrame||window.oRequestAnimationFrame||window.msRequestAnimationFrame||window.mozCancelRequestAnimationFrame&&window.mozRequestAnimationFrame||setTimeout:setTimeout;var v,w,x,y;return n.prototype.tween=function(a){return this._isTweening?this:(void 0===a&&this._configured||this.setConfig(a),this._timestamp=u(),this._start(this.get(),this._attachment),this.resume())},n.prototype.setConfig=function(a){a=a||{},this._configured=!0,this._attachment=a.attachment,this._pausedAtTime=null,this._scheduleId=null,this._delay=a.delay||0,this._start=a.start||e,this._step=a.step||e,this._finish=a.finish||e,this._duration=a.duration||r,this._currentState=g({},a.from)||this.get(),this._originalState=this.get(),this._targetState=g({},a.to)||this.get();var b=this;this._timeoutHandler=function(){l(b,b._timestamp,b._delay,b._duration,b._currentState,b._originalState,b._targetState,b._easing,b._step,b._scheduleFunction)};var c=this._currentState,d=this._targetState;return h(d,c),this._easing=m(c,a.easing||q),this._filterArgs=[c,this._originalState,d,this._easing],k(this,"tweenCreated"),this},n.prototype.get=function(){return g({},this._currentState)},n.prototype.set=function(a){this._currentState=a},n.prototype.pause=function(){return this._pausedAtTime=u(),this._isPaused=!0,this},n.prototype.resume=function(){return this._isPaused&&(this._timestamp+=u()-this._pausedAtTime),this._isPaused=!1,this._isTweening=!0,this._timeoutHandler(),this},n.prototype.seek=function(a){a=Math.max(a,0);var b=u();return this._timestamp+a===0?this:(this._timestamp=b-a,this.isPlaying()||(this._isTweening=!0,this._isPaused=!1,l(this,this._timestamp,this._delay,this._duration,this._currentState,this._originalState,this._targetState,this._easing,this._step,this._scheduleFunction,b),this.pause()),this)},n.prototype.stop=function(a){return this._isTweening=!1,this._isPaused=!1,this._timeoutHandler=e,(b.cancelAnimationFrame||b.webkitCancelAnimationFrame||b.oCancelAnimationFrame||b.msCancelAnimationFrame||b.mozCancelRequestAnimationFrame||b.clearTimeout)(this._scheduleId),a&&(k(this,"beforeTween"),i(1,this._currentState,this._originalState,this._targetState,1,0,this._easing),k(this,"afterTween"),k(this,"afterTweenEnd"),this._finish.call(this,this._currentState,this._attachment)),this},n.prototype.isPlaying=function(){return this._isTweening&&!this._isPaused},n.prototype.setScheduleFunction=function(a){this._scheduleFunction=a},n.prototype.dispose=function(){var a;for(a in this)this.hasOwnProperty(a)&&delete this[a]},n.prototype.filter={},n.prototype.formula={linear:function(a){return a}},o=n.prototype.formula,g(n,{now:u,each:f,tweenProps:i,tweenProp:j,applyFilter:k,shallowCopy:g,defaults:h,composeEasingObject:m}),"function"==typeof SHIFTY_DEBUG_NOW&&(b.timeoutHandler=l),"object"==typeof d?c.exports=n:"function"==typeof a&&a.amd?a(function(){return n}):"undefined"==typeof b.Tweenable&&(b.Tweenable=n),n}();!function(){e.shallowCopy(e.prototype.formula,{easeInQuad:function(a){return Math.pow(a,2)},easeOutQuad:function(a){return-(Math.pow(a-1,2)-1)},easeInOutQuad:function(a){return(a/=.5)<1?.5*Math.pow(a,2):-.5*((a-=2)*a-2)},easeInCubic:function(a){return Math.pow(a,3)},easeOutCubic:function(a){return Math.pow(a-1,3)+1},easeInOutCubic:function(a){return(a/=.5)<1?.5*Math.pow(a,3):.5*(Math.pow(a-2,3)+2)},easeInQuart:function(a){return Math.pow(a,4)},easeOutQuart:function(a){return-(Math.pow(a-1,4)-1)},easeInOutQuart:function(a){return(a/=.5)<1?.5*Math.pow(a,4):-.5*((a-=2)*Math.pow(a,3)-2)},easeInQuint:function(a){return Math.pow(a,5)},easeOutQuint:function(a){return Math.pow(a-1,5)+1},easeInOutQuint:function(a){return(a/=.5)<1?.5*Math.pow(a,5):.5*(Math.pow(a-2,5)+2)},easeInSine:function(a){return-Math.cos(a*(Math.PI/2))+1},easeOutSine:function(a){return Math.sin(a*(Math.PI/2))},easeInOutSine:function(a){return-.5*(Math.cos(Math.PI*a)-1)},easeInExpo:function(a){return 0===a?0:Math.pow(2,10*(a-1))},easeOutExpo:function(a){return 1===a?1:-Math.pow(2,-10*a)+1},easeInOutExpo:function(a){return 0===a?0:1===a?1:(a/=.5)<1?.5*Math.pow(2,10*(a-1)):.5*(-Math.pow(2,-10*--a)+2)},easeInCirc:function(a){return-(Math.sqrt(1-a*a)-1)},easeOutCirc:function(a){return Math.sqrt(1-Math.pow(a-1,2))},easeInOutCirc:function(a){return(a/=.5)<1?-.5*(Math.sqrt(1-a*a)-1):.5*(Math.sqrt(1-(a-=2)*a)+1)},easeOutBounce:function(a){return 1/2.75>a?7.5625*a*a:2/2.75>a?7.5625*(a-=1.5/2.75)*a+.75:2.5/2.75>a?7.5625*(a-=2.25/2.75)*a+.9375:7.5625*(a-=2.625/2.75)*a+.984375},easeInBack:function(a){var b=1.70158;return a*a*((b+1)*a-b)},easeOutBack:function(a){var b=1.70158;return(a-=1)*a*((b+1)*a+b)+1},easeInOutBack:function(a){var b=1.70158;return(a/=.5)<1?.5*(a*a*(((b*=1.525)+1)*a-b)):.5*((a-=2)*a*(((b*=1.525)+1)*a+b)+2)},elastic:function(a){return-1*Math.pow(4,-8*a)*Math.sin((6*a-1)*(2*Math.PI)/2)+1},swingFromTo:function(a){var b=1.70158;return(a/=.5)<1?.5*(a*a*(((b*=1.525)+1)*a-b)):.5*((a-=2)*a*(((b*=1.525)+1)*a+b)+2)},swingFrom:function(a){var b=1.70158;return a*a*((b+1)*a-b)},swingTo:function(a){var b=1.70158;return(a-=1)*a*((b+1)*a+b)+1},bounce:function(a){return 1/2.75>a?7.5625*a*a:2/2.75>a?7.5625*(a-=1.5/2.75)*a+.75:2.5/2.75>a?7.5625*(a-=2.25/2.75)*a+.9375:7.5625*(a-=2.625/2.75)*a+.984375},bouncePast:function(a){return 1/2.75>a?7.5625*a*a:2/2.75>a?2-(7.5625*(a-=1.5/2.75)*a+.75):2.5/2.75>a?2-(7.5625*(a-=2.25/2.75)*a+.9375):2-(7.5625*(a-=2.625/2.75)*a+.984375)},easeFromTo:function(a){return(a/=.5)<1?.5*Math.pow(a,4):-.5*((a-=2)*Math.pow(a,3)-2)},easeFrom:function(a){return Math.pow(a,4)},easeTo:function(a){return Math.pow(a,.25)}})}(),function(){function a(a,b,c,d,e,f){function g(a){return((n*a+o)*a+p)*a}function h(a){return((q*a+r)*a+s)*a}function i(a){return(3*n*a+2*o)*a+p}function j(a){return 1/(200*a)}function k(a,b){return h(m(a,b))}function l(a){return a>=0?a:0-a}function m(a,b){var c,d,e,f,h,j;for(e=a,j=0;8>j;j++){if(f=g(e)-a,l(f)<b)return e;if(h=i(e),l(h)<1e-6)break;e-=f/h}if(c=0,d=1,e=a,c>e)return c;if(e>d)return d;for(;d>c;){if(f=g(e),l(f-a)<b)return e;a>f?c=e:d=e,e=.5*(d-c)+c}return e}var n=0,o=0,p=0,q=0,r=0,s=0;return p=3*b,o=3*(d-b)-p,n=1-p-o,s=3*c,r=3*(e-c)-s,q=1-s-r,k(a,j(f))}function b(b,c,d,e){return function(f){return a(f,b,c,d,e,1)}}e.setBezierFunction=function(a,c,d,f,g){var h=b(c,d,f,g);return h.displayName=a,h.x1=c,h.y1=d,h.x2=f,h.y2=g,e.prototype.formula[a]=h},e.unsetBezierFunction=function(a){delete e.prototype.formula[a]}}(),function(){function a(a,b,c,d,f,g){return e.tweenProps(d,b,a,c,1,g,f)}var b=new e;b._filterArgs=[],e.interpolate=function(c,d,f,g,h){var i=e.shallowCopy({},c),j=h||0,k=e.composeEasingObject(c,g||"linear");b.set({});var l=b._filterArgs;l.length=0,l[0]=i,l[1]=c,l[2]=d,l[3]=k,e.applyFilter(b,"tweenCreated"),e.applyFilter(b,"beforeTween");var m=a(c,i,d,f,k,j);return e.applyFilter(b,"afterTween"),m}}(),function(a){function b(a,b){var c,d=[],e=a.length;for(c=0;e>c;c++)d.push("_"+b+"_"+c);return d}function c(a){var b=a.match(v);return b?(1===b.length||a[0].match(u))&&b.unshift(""):b=["",""],b.join(A)}function d(b){a.each(b,function(a){var c=b[a];"string"==typeof c&&c.match(z)&&(b[a]=e(c))})}function e(a){return i(z,a,f)}function f(a){var b=g(a);return"rgb("+b[0]+","+b[1]+","+b[2]+")"}function g(a){return a=a.replace(/#/,""),3===a.length&&(a=a.split(""),a=a[0]+a[0]+a[1]+a[1]+a[2]+a[2]),B[0]=h(a.substr(0,2)),B[1]=h(a.substr(2,2)),B[2]=h(a.substr(4,2)),B}function h(a){return parseInt(a,16)}function i(a,b,c){var d=b.match(a),e=b.replace(a,A);if(d)for(var f,g=d.length,h=0;g>h;h++)f=d.shift(),e=e.replace(A,c(f));return e}function j(a){return i(x,a,k)}function k(a){for(var b=a.match(w),c=b.length,d=a.match(y)[0],e=0;c>e;e++)d+=parseInt(b[e],10)+",";return d=d.slice(0,-1)+")"}function l(d){var e={};return a.each(d,function(a){var f=d[a];if("string"==typeof f){var g=r(f);e[a]={formatString:c(f),chunkNames:b(g,a)}}}),e}function m(b,c){a.each(c,function(a){for(var d=b[a],e=r(d),f=e.length,g=0;f>g;g++)b[c[a].chunkNames[g]]=+e[g];delete b[a]})}function n(b,c){a.each(c,function(a){var d=b[a],e=o(b,c[a].chunkNames),f=p(e,c[a].chunkNames);d=q(c[a].formatString,f),b[a]=j(d)})}function o(a,b){for(var c,d={},e=b.length,f=0;e>f;f++)c=b[f],d[c]=a[c],delete a[c];return d}function p(a,b){C.length=0;for(var c=b.length,d=0;c>d;d++)C.push(a[b[d]]);return C}function q(a,b){for(var c=a,d=b.length,e=0;d>e;e++)c=c.replace(A,+b[e].toFixed(4));return c}function r(a){return a.match(w)}function s(b,c){a.each(c,function(a){var d,e=c[a],f=e.chunkNames,g=f.length,h=b[a];if("string"==typeof h){var i=h.split(" "),j=i[i.length-1];for(d=0;g>d;d++)b[f[d]]=i[d]||j}else for(d=0;g>d;d++)b[f[d]]=h;delete b[a]})}function t(b,c){a.each(c,function(a){var d=c[a],e=d.chunkNames,f=e.length,g=b[e[0]],h=typeof g;if("string"===h){for(var i="",j=0;f>j;j++)i+=" "+b[e[j]],delete b[e[j]];b[a]=i.substr(1)}else b[a]=g})}var u=/(\d|\-|\.)/,v=/([^\-0-9\.]+)/g,w=/[0-9.\-]+/g,x=new RegExp("rgb\\("+w.source+/,\s*/.source+w.source+/,\s*/.source+w.source+"\\)","g"),y=/^.*\(/,z=/#([0-9]|[a-f]){3,6}/gi,A="VAL",B=[],C=[];a.prototype.filter.token={tweenCreated:function(a,b,c,e){d(a),d(b),d(c),this._tokenData=l(a)},beforeTween:function(a,b,c,d){s(d,this._tokenData),m(a,this._tokenData),m(b,this._tokenData),m(c,this._tokenData)},afterTween:function(a,b,c,d){n(a,this._tokenData),n(b,this._tokenData),n(c,this._tokenData),t(d,this._tokenData)}}}(e)}).call(null)},{}],2:[function(a,b,c){var d=a("./shape"),e=a("./utils"),f=function(a,b){this._pathTemplate="M 50,50 m 0,-{radius} a {radius},{radius} 0 1 1 0,{2radius} a {radius},{radius} 0 1 1 0,-{2radius}",this.containerAspectRatio=1,d.apply(this,arguments)};f.prototype=new d,f.prototype.constructor=f,f.prototype._pathString=function(a){var b=a.strokeWidth;a.trailWidth&&a.trailWidth>a.strokeWidth&&(b=a.trailWidth);var c=50-b/2;return e.render(this._pathTemplate,{radius:c,"2radius":2*c})},f.prototype._trailString=function(a){return this._pathString(a)},b.exports=f},{"./shape":7,"./utils":8}],3:[function(a,b,c){var d=a("./shape"),e=a("./utils"),f=function(a,b){this._pathTemplate="M 0,{center} L 100,{center}",d.apply(this,arguments)};f.prototype=new d,f.prototype.constructor=f,f.prototype._initializeSvg=function(a,b){a.setAttribute("viewBox","0 0 100 "+b.strokeWidth),a.setAttribute("preserveAspectRatio","none")},f.prototype._pathString=function(a){return e.render(this._pathTemplate,{center:a.strokeWidth/2})},f.prototype._trailString=function(a){return this._pathString(a)},b.exports=f},{"./shape":7,"./utils":8}],4:[function(a,b,c){b.exports={Line:a("./line"),Circle:a("./circle"),SemiCircle:a("./semicircle"),Path:a("./path"),Shape:a("./shape"),utils:a("./utils")}},{"./circle":2,"./line":3,"./path":5,"./semicircle":6,"./shape":7,"./utils":8}],5:[function(a,b,c){var d=a("shifty"),e=a("./utils"),f={easeIn:"easeInCubic",easeOut:"easeOutCubic",easeInOut:"easeInOutCubic"},g=function h(a,b){if(!(this instanceof h))throw new Error("Constructor was called without new keyword");b=e.extend({duration:800,easing:"linear",from:{},to:{},step:function(){}},b);var c;c=e.isString(a)?document.querySelector(a):a,this.path=c,this._opts=b,this._tweenable=null;var d=this.path.getTotalLength();this.path.style.strokeDasharray=d+" "+d,this.set(0)};g.prototype.value=function(){var a=this._getComputedDashOffset(),b=this.path.getTotalLength(),c=1-a/b;return parseFloat(c.toFixed(6),10)},g.prototype.set=function(a){this.stop(),this.path.style.strokeDashoffset=this._progressToOffset(a);var b=this._opts.step;if(e.isFunction(b)){var c=this._easing(this._opts.easing),d=this._calculateTo(a,c),f=this._opts.shape||this;b(d,f,this._opts.attachment)}},g.prototype.stop=function(){this._stopTween(),this.path.style.strokeDashoffset=this._getComputedDashOffset()},g.prototype.animate=function(a,b,c){b=b||{},e.isFunction(b)&&(c=b,b={});var f=e.extend({},b),g=e.extend({},this._opts);b=e.extend(g,b);var h=this._easing(b.easing),i=this._resolveFromAndTo(a,h,f);this.stop(),this.path.getBoundingClientRect();var j=this._getComputedDashOffset(),k=this._progressToOffset(a),l=this;this._tweenable=new d,this._tweenable.tween({from:e.extend({offset:j},i.from),to:e.extend({offset:k},i.to),duration:b.duration,easing:h,step:function(a){l.path.style.strokeDashoffset=a.offset;var c=b.shape||l;b.step(a,c,b.attachment)},finish:function(a){e.isFunction(c)&&c()}})},g.prototype._getComputedDashOffset=function(){var a=window.getComputedStyle(this.path,null);return parseFloat(a.getPropertyValue("stroke-dashoffset"),10)},g.prototype._progressToOffset=function(a){var b=this.path.getTotalLength();return b-a*b},g.prototype._resolveFromAndTo=function(a,b,c){return c.from&&c.to?{from:c.from,to:c.to}:{from:this._calculateFrom(b),to:this._calculateTo(a,b)}},g.prototype._calculateFrom=function(a){return d.interpolate(this._opts.from,this._opts.to,this.value(),a)},g.prototype._calculateTo=function(a,b){return d.interpolate(this._opts.from,this._opts.to,a,b)},g.prototype._stopTween=function(){null!==this._tweenable&&(this._tweenable.stop(),this._tweenable=null)},g.prototype._easing=function(a){return f.hasOwnProperty(a)?f[a]:a},b.exports=g},{"./utils":8,shifty:1}],6:[function(a,b,c){var d=a("./shape"),e=a("./circle"),f=a("./utils"),g=function(a,b){this._pathTemplate="M 50,50 m -{radius},0 a {radius},{radius} 0 1 1 {2radius},0",this.containerAspectRatio=2,d.apply(this,arguments)};g.prototype=new d,g.prototype.constructor=g,g.prototype._initializeSvg=function(a,b){a.setAttribute("viewBox","0 0 100 50")},g.prototype._initializeTextContainer=function(a,b,c){a.text.style&&(c.style.top="auto",c.style.bottom="0",a.text.alignToBottom?f.setStyle(c,"transform","translate(-50%, 0)"):f.setStyle(c,"transform","translate(-50%, 50%)"))},g.prototype._pathString=e.prototype._pathString,g.prototype._trailString=e.prototype._trailString,b.exports=g},{"./circle":2,"./shape":7,"./utils":8}],7:[function(a,b,c){var d=a("./path"),e=a("./utils"),f="Object is destroyed",g=function h(a,b){if(!(this instanceof h))throw new Error("Constructor was called without new keyword");if(0!==arguments.length){this._opts=e.extend({color:"#555",strokeWidth:1,trailColor:null,trailWidth:null,fill:null,text:{style:{color:null,position:"absolute",left:"50%",top:"50%",padding:0,margin:0,transform:{prefix:!0,value:"translate(-50%, -50%)"}},autoStyleContainer:!0,alignToBottom:!0,value:null,className:"progressbar-text"},svgStyle:{display:"block",width:"100%"},warnings:!1},b,!0),e.isObject(b)&&void 0!==b.svgStyle&&(this._opts.svgStyle=b.svgStyle),e.isObject(b)&&e.isObject(b.text)&&void 0!==b.text.style&&(this._opts.text.style=b.text.style);var c,f=this._createSvgView(this._opts);if(c=e.isString(a)?document.querySelector(a):a,!c)throw new Error("Container does not exist: "+a);this._container=c,this._container.appendChild(f.svg),this._opts.warnings&&this._warnContainerAspectRatio(this._container),this._opts.svgStyle&&e.setStyles(f.svg,this._opts.svgStyle),this.svg=f.svg,this.path=f.path,this.trail=f.trail,this.text=null;var g=e.extend({attachment:void 0,shape:this},this._opts);this._progressPath=new d(f.path,g),e.isObject(this._opts.text)&&null!==this._opts.text.value&&this.setText(this._opts.text.value)}};g.prototype.animate=function(a,b,c){if(null===this._progressPath)throw new Error(f);this._progressPath.animate(a,b,c)},g.prototype.stop=function(){if(null===this._progressPath)throw new Error(f);void 0!==this._progressPath&&this._progressPath.stop()},g.prototype.destroy=function(){if(null===this._progressPath)throw new Error(f);this.stop(),this.svg.parentNode.removeChild(this.svg),this.svg=null,this.path=null,this.trail=null,this._progressPath=null,null!==this.text&&(this.text.parentNode.removeChild(this.text),this.text=null)},g.prototype.set=function(a){if(null===this._progressPath)throw new Error(f);this._progressPath.set(a)},g.prototype.value=function(){if(null===this._progressPath)throw new Error(f);return void 0===this._progressPath?0:this._progressPath.value()},g.prototype.setText=function(a){if(null===this._progressPath)throw new Error(f);null===this.text&&(this.text=this._createTextContainer(this._opts,this._container),this._container.appendChild(this.text)),e.isObject(a)?(e.removeChildren(this.text),this.text.appendChild(a)):this.text.innerHTML=a},g.prototype._createSvgView=function(a){var b=document.createElementNS("http://www.w3.org/2000/svg","svg");this._initializeSvg(b,a);var c=null;(a.trailColor||a.trailWidth)&&(c=this._createTrail(a),b.appendChild(c));var d=this._createPath(a);return b.appendChild(d),{svg:b,path:d,trail:c}},g.prototype._initializeSvg=function(a,b){a.setAttribute("viewBox","0 0 100 100")},g.prototype._createPath=function(a){var b=this._pathString(a);return this._createPathElement(b,a)},g.prototype._createTrail=function(a){var b=this._trailString(a),c=e.extend({},a);return c.trailColor||(c.trailColor="#eee"),c.trailWidth||(c.trailWidth=c.strokeWidth),c.color=c.trailColor,c.strokeWidth=c.trailWidth,c.fill=null,this._createPathElement(b,c)},g.prototype._createPathElement=function(a,b){var c=document.createElementNS("http://www.w3.org/2000/svg","path");return c.setAttribute("d",a),c.setAttribute("stroke",b.color),c.setAttribute("stroke-width",b.strokeWidth),b.fill?c.setAttribute("fill",b.fill):c.setAttribute("fill-opacity","0"),c},g.prototype._createTextContainer=function(a,b){var c=document.createElement("div");c.className=a.text.className;var d=a.text.style;return d&&(a.text.autoStyleContainer&&(b.style.position="relative"),e.setStyles(c,d),d.color||(c.style.color=a.color)),this._initializeTextContainer(a,b,c),c},g.prototype._initializeTextContainer=function(a,b,c){},g.prototype._pathString=function(a){throw new Error("Override this function for each progress bar")},g.prototype._trailString=function(a){throw new Error("Override this function for each progress bar")},g.prototype._warnContainerAspectRatio=function(a){if(this.containerAspectRatio){var b=window.getComputedStyle(a,null),c=parseFloat(b.getPropertyValue("width"),10),d=parseFloat(b.getPropertyValue("height"),10);e.floatEquals(this.containerAspectRatio,c/d)||(console.warn("Incorrect aspect ratio of container","#"+a.id,"detected:",b.getPropertyValue("width")+"(width)","/",b.getPropertyValue("height")+"(height)","=",c/d),console.warn("Aspect ratio of should be",this.containerAspectRatio))}},b.exports=g},{"./path":5,"./utils":8}],8:[function(a,b,c){function d(a,b,c){a=a||{},b=b||{},c=c||!1;for(var e in b)if(b.hasOwnProperty(e)){var f=a[e],g=b[e];c&&l(f)&&l(g)?a[e]=d(f,g,c):a[e]=g}return a}function e(a,b){var c=a;for(var d in b)if(b.hasOwnProperty(d)){var e=b[d],f="\\{"+d+"\\}",g=new RegExp(f,"g");c=c.replace(g,e)}return c}function f(a,b,c){for(var d=a.style,e=0;e<p.length;++e){var f=p[e];d[f+h(b)]=c}d[b]=c}function g(a,b){m(b,function(b,c){null!==b&&void 0!==b&&(l(b)&&b.prefix===!0?f(a,c,b.value):a.style[c]=b)})}function h(a){return a.charAt(0).toUpperCase()+a.slice(1)}function i(a){return"string"==typeof a||a instanceof String}function j(a){return"function"==typeof a}function k(a){return"[object Array]"===Object.prototype.toString.call(a)}function l(a){if(k(a))return!1;var b=typeof a;return"object"===b&&!!a}function m(a,b){for(var c in a)if(a.hasOwnProperty(c)){var d=a[c];b(d,c)}}function n(a,b){return Math.abs(a-b)<q}function o(a){for(;a.firstChild;)a.removeChild(a.firstChild)}var p="Webkit Moz O ms".split(" "),q=.001;b.exports={extend:d,render:e,setStyle:f,setStyles:g,capitalize:h,isString:i,isFunction:j,isObject:l,forEachObject:m,floatEquals:n,removeChildren:o}},{}]},{},[4])(4)});
+//# sourceMappingURL=progressbar.min.js.map
+
+// Total number of school days elapsed
+var intTotalSchoolDays = 0;
+
+// Total number of school days left in the year
+var intSchoolDaysLeft = 0;
+
+// Total number of school days in the entire year
+var intSchoolYearDays = 180;
+
+$.ajax({
+    type: 'GET',
+    url: '#',
+    data: {  },
+	// Fix CORS/JSON error using Access-Control-Allow-Origin header in nginx sites-enabled/default file
+    dataType: 'json',
+	// Function successfully run!
+    success: function (data) { 
+        $.each(data, function(index, element) {
+		
+			// Get length of array in JS: http://stackoverflow.com/a/6700
+			for(var i = 0; i < Object.keys(element).length; i++){
+				// Add each element of array to an integer.
+				intTotalSchoolDays += element[i].value;
+			}
+			
+			// Set text of div to total school days variable...
+            $('#total_school_days').text(intTotalSchoolDays.toString())
+			
+			// Set the total number of total school days left for other variables to use
+			intSchoolDaysLeft = intSchoolYearDays - intTotalSchoolDays;
+			
+			// Set the total number of school days left as text.
+			$('#countdown_days').text(intSchoolDaysLeft.toString())
+			
+			// Set the number of periods left in school as text...
+			$('#countdown_periods').text((intSchoolDaysLeft * 6).toString())
+			
+			// Set the number of hours left in school as text...
+			$('#countdown_hours').text((intSchoolDaysLeft * 7).toString())
+			
+			// progressbar.js@1.0.0 version is used
+			// Docs: http://progressbarjs.readthedocs.org/en/1.0.0/
+
+			var bar = new ProgressBar.SemiCircle("#tsd_progressbar", {
+			  strokeWidth: 6,
+			  color: '#FFEA82',
+			  trailColor: '#eee',
+			  trailWidth: 1,
+			  easing: 'easeInOut',
+			  duration: 2000,
+			  svgStyle: null,
+			  text: {
+				value: '',
+				alignToBottom: true
+			  },
+			  from: {color: '#00e676'},
+			  to: {color: '#4caf50'},
+			  //to: {color: '#29b6f6'},
+			  // Set default step function for all animate calls
+			  step: (state, bar) => {
+			  
+				bar.path.setAttribute('stroke', state.color);
+				
+				var value = Math.round(bar.value() * 100);
+				
+				if (value === 0) {
+				  bar.setText('0\%');
+				} else {
+				  bar.setText(value + '\%');
+				}
+
+				bar.text.style.color = state.color;
+				
+			  }
+			});
+			bar.text.style.fontFamily = '"Roboto", Helvetica, sans-serif';
+			bar.text.style.fontSize = '36px';
+			
+			// Progress of school year (total days counted / total days in school year)
+			bar.animate(intTotalSchoolDays / intSchoolYearDays);  // Number from 0.0 to 1.0
+				
+						
+		});
+		
+		// Changes are coming for the new school year. (have different strings for the countdown depending on the situation)
+		
+    },
+	// When an error in the function (the collection and THEN parsing of data) has occurred...
+	fail: function (data) {
+		
+		// Set text of error message div to give more detail on the "error" (no data, no connection to API in this case)
+		// Cyborg Bootswatch template "panel danger"
+		
+		// Set to HTML defined below (panel danger with predefined text, we don't want error message to always show)
+		$('#error_message').html('<div class="row"><div class="col-lg-4"></div><div class="col-lg-4"><div class="panel panel-danger"><div class="panel-heading"><h3 class="panel-title">Cannot get data</h3></div><div class="panel-body">The server is down, or your internet connection may be experiencing issues.<br>Please reload the page and try again.</div></div></div></div>')
+		
+		/* HTML CODE:
+			<div class="row">
+				<div class="col-lg-4">
+				</div>
+				<div class="col-lg-4">
+					<div class="panel panel-danger">
+					  <div class="panel-heading">
+						<h3 class="panel-title">Cannot get data</h3>
+					  </div>
+					  <div class="panel-body">
+						The server is down, or your internet connection may be experiencing issues.
+						<br>
+						Please reload the page and try again.
+					  </div>
+					</div>
+				</div>
+			</div>
+		*/
+		
+		/* CONDENSED/"minified"/1-line HTML CODE for JS/JQuery syntax (used above, requires the use of the single quote (') instead of double quote (") to avoid having to escape " with \", because it's tedious to do this all the time):
+			<div class="row"><div class="col-lg-4"></div><div class="col-lg-4"><div class="panel panel-danger"><div class="panel-heading"><h3 class="panel-title">Cannot get data</h3></div><div class="panel-body">The server is down, or your internet connection may be experiencing issues.<br>Please reload the page and try again.</div></div></div></div>
+		*/
+		}
+	});
+
+</script>
+
+</html>
