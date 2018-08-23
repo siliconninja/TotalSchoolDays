@@ -1,5 +1,10 @@
 Copyright (c) 2018 siliconninja
 
+NOTE: Please credit the following libraries if you decide to redistribute this project as-is. If you remove a library or use your own instead, credit for whatever you remove is not needed:
+- Progressbar.js (https://kimmobrunfeldt.github.io/progressbar.js/), MIT license
+- Odometer (https://github.com/HubSpot/odometer), MIT license
+- Cyborg Bootstrap theme from Bootswatch (https://bootswatch.com/cyborg/), MIT license
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
