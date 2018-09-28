@@ -66,9 +66,9 @@ You can also create your own values; for instance, minutes left, or even club me
 
   i. Authentication can be used so only certain people can access the data; however, since this information is not confidential, it is publicly available.
 
-2. The data is requested by the client (the person browsing the website)
+2. The data is requested by the client (usually the person browsing the website, or anything that sends an HTTP GET request to it)
 
-  i. The collected data from the JSON file is requested in JavaScript/JQuery and stored temporarily in memory on the computer (here's where the minimal part comes in)
+  i. The collected data from the JSON file is requested in JavaScript/JQuery and stored temporarily in memory in the web browser
 
 3. Using JavaScript or another website scripting language, the local data is manipulated, updated, and finally shown to the user.
 
@@ -311,12 +311,10 @@ You're done! Below are resources for automating the script that increments the t
 (**Optional: Automation on iOS, With Jailbreak**) Super easy. :+1: [OpenSSH](https://cydia.saurik.com/package/openssh/) :computer: and [Activator](http://cydia.saurik.com/package/libactivator/) :calling: on Cydia (both free). You can use a 'location' profile or a 'when WiFi connected' profile and have it set a variable so it only executes once until a certain time the next day.
 
 ## Licensing
-First things first, everything here is licensed under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) license.
+First things first, everything here is licensed under the [Creative Commons Attribution 4.0](https://creativecommons.org/licenses/by/4.0/) license.
 
 Put simply, this means:
-- you must credit me for any work you have created from this (uses Total School Days by siliconninja), **please reference this repository**
-- you must keep your work free &ndash; you can't charge for it, sell it and market it as your own, or make money from another source (e.g. ad revenue), trackers such as Google Analytics are OK.
-- you must license your work with the EXACT SAME license (CC BY-NC-SA 4.0): mention the license somewhere in your repository &amp; include an official Creative Commons link to the license (https://creativecommons.org/licenses/by-nc-sa/4.0/).
+- you must credit me for any work you have created from this (uses Total School Days by siliconninja). **Please include a link to this repository if possible**.
 
 In addition, please credit the following libraries if you decide to use my website as-is. If you remove a library or use your own, credit for what you don't use is not needed:
 - Progressbar.js (https://kimmobrunfeldt.github.io/progressbar.js/), MIT license
