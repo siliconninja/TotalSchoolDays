@@ -311,7 +311,7 @@ You're done! Below are resources for automating the script that increments the t
 (**Optional: Automation on iOS, With Jailbreak**) Super easy. :+1: [OpenSSH](https://cydia.saurik.com/package/openssh/) :computer: and [Activator](http://cydia.saurik.com/package/libactivator/) :calling: on Cydia (both free). You can use a 'location' profile or a 'when WiFi connected' profile and have it set a variable so it only executes once until a certain time the next day.
 
 ## Licensing
-First things first, everything here is licensed under the [Creative Commons Attribution 4.0](https://creativecommons.org/licenses/by/4.0/) license.
+First things first, everything here is licensed under the [MIT](https://opensource.org/licenses/MIT) license.
 
 Put simply, this means:
 - you must credit me for any work you have created from this (uses Total School Days by siliconninja). **Please include a link to this repository if possible**.
