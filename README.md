@@ -13,8 +13,8 @@ It includes API documentation and a getting started toolkit for developers.
 
 The count is updated daily with a trigger/profile on Tasker (an app for Android).
 
-## [API Documentation for Developers](https://github.com/siliconninja/TotalSchoolDays/tree/master/wiki/API-Documentation.md)
-See the [API Documentation section](https://github.com/siliconninja/TotalSchoolDays/tree/master/wiki/API-Documentation.md) of the Wiki for instructions on how to:
+## [API Documentation for Developers](https://github.com/siliconninja/TotalSchoolDays/blob/master/wiki/API-Documentation.md)
+See the [API Documentation section](https://github.com/siliconninja/TotalSchoolDays/blob/master/wiki/API-Documentation.md) of the Wiki for instructions on how to:
 - use this API in your own projects
 - set up your own version of Total School Days for your school
 
